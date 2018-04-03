@@ -40,33 +40,33 @@ func init() {
 
 func testCommon(cm CachingRADIUSMap, t *testing.T) {
 	// Test valid lookup
-	value, ok := cm.Get(3, "testuser1")
-	if !ok || value == nil {
-		t.Errorf("Bad returned values for profile testuser1: %+v, %+v", value, ok)
+	value, err := cm.Get(3, "testuser1")
+	if err != nil || value == nil {
+		t.Errorf("Bad returned values for profile testuser1: %+v, %+v", value, err)
 		t.Fail()
 	}
 
 	// Test invalid lookup
-	value, ok = cm.Get(0, "nosuchuser")
-	if ok || value != nil {
-		t.Errorf("Bad returned values for profile nosuchuser: %+v, %+v", value, ok)
+	value, err = cm.Get(0, "nosuchuser")
+	if err == nil || value != nil {
+		t.Errorf("Bad returned values for profile nosuchuser: %+v, %+v", value, err)
 		t.Fail()
 	}
 
 	// Test cached lookup
-	value, ok = cm.Get(3, "testuser1")
-	if !ok || value == nil {
-		t.Errorf("Bad returned values for profile testuser1: %+v, %+v", value, ok)
+	value, err = cm.Get(3, "testuser1")
+	if err != nil || value == nil {
+		t.Errorf("Bad returned values for profile testuser1: %+v, %+v", value, err)
 		t.Fail()
 	}
 }
 
 func TestThreadSafe(t *testing.T) {
-	cm := NewCachingRADIUSMap(true)
+	cm := NewCachingRADIUSMap(true, "localhost:1812", "testing123")
 	testCommon(cm, t)
 }
 
 func TestThreadUnsafe(t *testing.T) {
-	cm := NewCachingRADIUSMap(false)
+	cm := NewCachingRADIUSMap(false, "localhost:1812", "testing123")
 	testCommon(cm, t)
 }

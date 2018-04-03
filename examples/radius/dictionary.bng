@@ -1,0 +1,8 @@
+VENDOR          BNG             1234
+
+BEGIN-VENDOR    BNG
+
+ATTRIBUTE       BNG-ID          1       integer
+ATTRIBUTE       BNG-Profile-ID  2       integer
+
+END-VENDOR      BNG

@@ -6,7 +6,10 @@ PATH_TO_MK = ../../mk
 IMAGENAME =
 EXECUTABLES =
 
-testing:
+bngdict.go: dictionary.bng
+	radius-dict-gen -package radius -output bngdict.go dictionary.bng
+
+testing: bngdict.go
 	go test
 
 include $(PATH_TO_MK)/leaf.mk
