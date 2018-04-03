@@ -40,23 +40,23 @@ func init() {
 
 func testCommon(cm CachingRADIUSMap, t *testing.T) {
 	// Test valid lookup
-	value, err := cm.Get(3, "testuser1")
+	value, err := cm.Get(3, "testuser1", "testpass")
 	if err != nil || value == nil {
 		t.Errorf("Bad returned values for profile testuser1: %+v, %+v", value, err)
 		t.Fail()
 	}
 
 	// Test invalid lookup
-	value, err = cm.Get(0, "nosuchuser")
+	value, err = cm.Get(0, "nosuchuser", "")
 	if err == nil || value != nil {
 		t.Errorf("Bad returned values for profile nosuchuser: %+v, %+v", value, err)
 		t.Fail()
 	}
 
 	// Test cached lookup
-	value, err = cm.Get(3, "testuser1")
+	value, err = cm.Get(3, "testuser1", "")
 	if err != nil || value == nil {
-		t.Errorf("Bad returned values for profile testuser1: %+v, %+v", value, err)
+		t.Errorf("Bad cached returned values for profile testuser1: %+v, %+v", value, err)
 		t.Fail()
 	}
 }

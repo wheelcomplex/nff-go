@@ -40,9 +40,10 @@ func lookupInRADIUS(BngID uint16, profile string) (*SlaProfileDef, error) {
 // ----------------------------------------------------------------------
 
 // Main RADIUS lookup routine
-func (si *serverInfo) lookupInRADIUS(BngID uint16, profile string) (*SlaProfileDef, error) {
+func (si *serverInfo) lookupInRADIUS(BngID uint16, profile, password string) (*SlaProfileDef, error) {
 	packet := radius.New(radius.CodeAccessRequest, []byte(si.secret))
 	rfc2865.UserName_SetString(packet, profile)
+	rfc2865.UserPassword_SetString(packet, password)
 	BNGID_Set(packet, BNGID(BngID))
 
 	response, err := radius.Exchange(context.Background(), packet, si.addr)
@@ -72,7 +73,7 @@ func (si *serverInfo) lookupInRADIUS(BngID uint16, profile string) (*SlaProfileD
 
 // CachingRADIUSMap is a caching map abstract interface
 type CachingRADIUSMap interface {
-	Get(BngID uint16, profile string) (value *SlaProfileDef, err error)
+	Get(BngID uint16, profile, password string) (value *SlaProfileDef, err error)
 }
 
 type threadUnsafeCachingMap struct {
@@ -80,7 +81,7 @@ type threadUnsafeCachingMap struct {
 	lookup map[string]*SlaProfileDef
 }
 
-func (this threadUnsafeCachingMap) Get(BngID uint16, profile string) (*SlaProfileDef, error) {
+func (this threadUnsafeCachingMap) Get(BngID uint16, profile, password string) (*SlaProfileDef, error) {
 	value, ok := this.lookup[profile]
 
 	if ok {
@@ -88,7 +89,7 @@ func (this threadUnsafeCachingMap) Get(BngID uint16, profile string) (*SlaProfil
 	}
 
 	var err error
-	value, err = (&this.serverInfo).lookupInRADIUS(BngID, profile)
+	value, err = this.lookupInRADIUS(BngID, profile, password)
 	if err != nil {
 		return nil, err
 	}
@@ -100,10 +101,10 @@ func (this threadUnsafeCachingMap) Get(BngID uint16, profile string) (*SlaProfil
 
 type threadSafeCachingMap struct {
 	serverInfo
-	lookup sync.Map
+	lookup *sync.Map
 }
 
-func (this threadSafeCachingMap) Get(BngID uint16, profile string) (*SlaProfileDef, error) {
+func (this threadSafeCachingMap) Get(BngID uint16, profile, password string) (*SlaProfileDef, error) {
 	value, ok := this.lookup.Load(profile)
 
 	if ok {
@@ -111,7 +112,7 @@ func (this threadSafeCachingMap) Get(BngID uint16, profile string) (*SlaProfileD
 	}
 
 	var err error
-	value, err = (&this.serverInfo).lookupInRADIUS(BngID, profile)
+	value, err = this.lookupInRADIUS(BngID, profile, password)
 	if err != nil {
 		return nil, err
 	}
@@ -132,7 +133,7 @@ func NewCachingRADIUSMap(mt bool, serverAddr string, serverSecret string) (m Cac
 	if mt {
 		return threadSafeCachingMap{
 			serverInfo: si,
-			lookup:     sync.Map{},
+			lookup:     &sync.Map{},
 		}
 	} else {
 		return threadUnsafeCachingMap{
