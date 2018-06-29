@@ -18,7 +18,7 @@ import (
 	"github.com/intel-go/nff-go/common"
 	"github.com/intel-go/nff-go/flow"
 	"github.com/intel-go/nff-go/packet"
-	"github.com/intel-go/nff-go/test/localTesting/pktgen/parseConfig"
+	"github.com/intel-go/nff-go/examples/nffPktgen/parseConfig"
 )
 
 var gen generator

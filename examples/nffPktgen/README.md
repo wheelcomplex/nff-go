@@ -1,11 +1,9 @@
-# Packet generation to file
+# Packet generator based on NFF-GO
 
 ## What it is
-Pktgen parses config in json format and generates packets according to it and sends to port or pcap file that can be read by NFF-GO reader, Wireshark, tcpdump and other tools reading pcap files.
+nffPktgen parses config in json format and generates packets according to it and either sends to port or writes to pcap file that can be read by NFF-GO reader, Wireshark, tcpdump and other tools reading pcap files.
 Generator package has public API which can be used for own generator.
-
 ### API:
-
 ```go
 func GetGenerator() *generator 
 ```
